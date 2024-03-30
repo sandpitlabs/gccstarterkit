@@ -2,6 +2,14 @@ provider "azurerm" {
   features {}
 }
 
+provider "azurerm" {
+  features {}
+
+  subscription_id = data.azurerm_client_config.current.subscription_id
+  tenant_id       = data.azurerm_client_config.current.tenant_id
+  use_msi        = true
+}
+
 # Configure Terraform backend
 terraform {
   required_version = ">= 1.0.0"
