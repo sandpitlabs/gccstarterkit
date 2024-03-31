@@ -34,45 +34,107 @@ module "application_gateway" {
     tier = "na"          
   }  
   sku = {
-    name     = "Standard_v2"
-    tier     = "Standard_v2"
+    name     = "WAF_v2" # "Standard_v2"
+    tier     = "WAF_v2" # "Standard_v2"
     capacity = 2
   }
-  gateway_ip_configuration  = {
-    name      = "agw-gateway-ip-configuration"
-    subnet_id = local.remote.networking.virtual_networks.hub_internet_ingress.virtual_subnets.subnets["AgwSubnet"].id 
+  gateway_ip_configuration  = {  
+    gateway_ip_configuration1  = {
+      name      = "agw-gateway-ip-configuration"
+      subnet_id = local.remote.networking.virtual_networks.hub_internet_ingress.virtual_subnets.subnets["AgwSubnet"].id 
+    }
   }
-  frontend_port  = {
-    name = local.frontend_port_name
-    port = 80
+  frontend_port  = {  
+    80  = {
+      name = local.frontend_port_name
+      port = 80
+    }
   }
-  frontend_ip_configuration  = {
-    name                 = local.frontend_ip_configuration_name
-    public_ip_address_id = module.public_ip.public_ip_id 
+  frontend_ip_configuration = {
+    public  = {
+      name                 = local.frontend_ip_configuration_name
+      public_ip_address_id = module.public_ip.public_ip_id 
+      private_ip_address            = null # try(cidrhost(local.global_settings.subnets.hub_internet_ingress.AgwSubnet.address_prefixes.0, 10), null) # (agw subnet cidr 100.127.0.64/27, offset 10) >"100.127.0.74" 
+      private_ip_address_allocation = null # "Static" # Dynamic and Static default to Dynamic
+      subnet_id                     = null # local.remote.networking.virtual_networks.hub_internet_ingress.virtual_subnets.subnets["AgwSubnet"].id 
+    }
+    private  = {
+      name                 = "private" # local.frontend_ip_configuration_name
+      public_ip_address_id = null # module.public_ip.public_ip_id 
+      private_ip_address            = try(cidrhost(local.global_settings.subnets.hub_internet_ingress.AgwSubnet.address_prefixes.0, 10), null) # (agw subnet cidr 100.127.0.64/27, offset 10) >"100.127.0.74" 
+      private_ip_address_allocation = "Static" # Dynamic and Static default to Dynamic
+      subnet_id                     = local.remote.networking.virtual_networks.hub_internet_ingress.virtual_subnets.subnets["AgwSubnet"].id 
+    }    
   }
-  backend_address_pool  = {
-    name = local.backend_address_pool_name
+  backend_address_pool = {
+    beap1  = {
+      name = local.backend_address_pool_name
+    }
   }
   backend_http_settings  = {
-    name                  = local.http_setting_name
-    cookie_based_affinity = "Disabled"
-    path                  = "/path1/"
-    port                  = 80
-    protocol              = "Http"
-    request_timeout       = 60
+    bes1  = {
+      name                  = local.http_setting_name
+      cookie_based_affinity = "Disabled"
+      path                  = "/path1/"
+      port                  = 80
+      protocol              = "Http"
+      request_timeout       = 60
+    }
   }
-  http_listener  = {
-    name                           = local.listener_name
-    frontend_ip_configuration_name = local.frontend_ip_configuration_name
-    frontend_port_name             = local.frontend_port_name
-    protocol                       = "Http"
+  http_listener  = {  
+    http_listener1  = {
+      name                           = local.listener_name
+      frontend_ip_configuration_name = local.frontend_ip_configuration_name
+      frontend_port_name             = local.frontend_port_name
+      protocol                       = "Http"
+    }
   }
-  request_routing_rule  = {
-    name                       = local.request_routing_rule_name
-    priority                   = 9
-    rule_type                  = "Basic"
-    http_listener_name         = local.listener_name
-    backend_address_pool_name  = local.backend_address_pool_name
-    backend_http_settings_name = local.http_setting_name
-  }    
+  request_routing_rule  = {  
+    request_routing_rule1  = {
+      name                       = local.request_routing_rule_name
+      priority                   = 9
+      rule_type                  = "Basic"
+      http_listener_name         = local.listener_name
+      backend_address_pool_name  = local.backend_address_pool_name
+      backend_http_settings_name = local.http_setting_name
+    } 
+  } 
+
+  waf_configuration = {
+    enabled                  = true
+    firewall_mode            = "Prevention" # or Detection
+    rule_set_type            = "OWASP"      # OWASP
+    rule_set_version         = "3.1"        # OWASP(2.2.9, 3.0, 3.1, 3.2)
+    file_upload_limit_mb     = 100
+    request_body_check       = true
+    max_request_body_size_kb = 128
+
+    # Optional
+    disabled_rule_groups = {
+      general = {
+        rule_group_name = "General"
+        rules           = ["200004"]
+      }
+      # Disable a spacific rule in the rule group
+      REQUEST-913-SCANNER-DETECTION = {
+        rule_group_name = "REQUEST-913-SCANNER-DETECTION"
+        rules           = ["913102"]
+      }
+      # Disable all rule in the rule group
+      REQUEST-930-APPLICATION-ATTACK-LFI = {
+        rule_group_name = "REQUEST-930-APPLICATION-ATTACK-LFI"
+      }
+    }
+
+    # Optional
+    exclusions = {
+      exc1 = {
+        match_variable          = "RequestHeaderNames"
+        selector_match_operator = "Equals" # StartsWith, EndsWith, Contains
+        selector                = "SomeHeader"
+      }
+    }
+  }
+
+
 }

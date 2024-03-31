@@ -116,11 +116,11 @@ locals {
       virtual_networks = {
         hub_internet_ingress = {
           virtual_network = try(data.terraform_remote_state.gcci_platform.outputs.hub_internet_ingress, null)
-          virtual_subnets = try(data.terraform_remote_state.hub_internet_ingress_virtual_subnets.outputs.virtual_subnets_ingress, null)
+          virtual_subnets = try(data.terraform_remote_state.hub_internet_ingress_virtual_subnets.outputs.virtual_subnets, null)
         }
         hub_internet_egress  = {
           virtual_network = try(data.terraform_remote_state.gcci_platform.outputs.hub_internet_egress, null)
-          virtual_subnets = try(data.terraform_remote_state.hub_internet_egress_virtual_subnets.outputs.virtual_subnets_egress, null)
+          virtual_subnets = try(data.terraform_remote_state.hub_internet_egress_virtual_subnets.outputs.virtual_subnets, null)
         }
         hub_intranet_ingress = {
           virtual_network = try(data.terraform_remote_state.gcci_platform.outputs.hub_intranet_ingress, null)

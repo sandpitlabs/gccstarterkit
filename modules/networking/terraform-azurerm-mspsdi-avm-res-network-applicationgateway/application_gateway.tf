@@ -1,21 +1,3 @@
-# data "azurerm_key_vault_certificate" "trustedcas" {
-#   for_each = {
-#     for key, value in try(var.trusted_root_certificate, {}) : key => value
-#     if try(value.keyvault_key, null) != null
-#   }
-#   name         = each.value.name
-#   key_vault_id = each.value.key_vault_id # can(each.value.keyvault_id) ? each.value.keyvault_id : var.keyvaults[try(each.value.lz_key, var.client_config.landingzone_key)][each.value.keyvault_key].id
-# }
-
-# data "azurerm_key_vault_certificate" "manual_certs" {
-#   for_each = {
-#     for key, value in var.listener : key => value
-#     if try(value.keyvault_certificate.certificate_name, null) != null
-#   }
-#   name         = each.value.keyvault_certificate.certificate_name
-#   key_vault_id = each.value.keyvault_certificate.key_vault_id # can(each.value.keyvault_certificate.keyvault_id) ? each.value.keyvault_certificate.keyvault_id : var.keyvaults[try(each.value.keyvault_certificate.lz_key, var.client_config.landingzone_key)][each.value.keyvault_certificate.keyvault_key].id
-# }
-
 # fips_enabled
 # private_link_configuration
 resource "azurerm_application_gateway" "agw" {
@@ -23,145 +5,93 @@ resource "azurerm_application_gateway" "agw" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  backend_address_pool {
-    name         = var.backend_address_pool.name
-    fqdns        = try(var.backend_address_pool.fqdns, null) # try(length(backend_address_pool.value.fqdns), 0) == 0 ? null : backend_address_pool.value.fqdns
-    ip_addresses = try(var.backend_address_pool.ip_addresses, null)
-  }
-
-  # dynamic "backend_address_pool" {
-  #   for_each = var.backend_address_pools
-
-  #   content {
-  #     name         = backend_address_pool.value.backend_address_pool_name
-  #     fqdns        = try(backend_address_pool.value.fqdns, null) # try(length(backend_address_pool.value.fqdns), 0) == 0 ? null : backend_address_pool.value.fqdns
-  #     ip_addresses = try(backend_address_pool.value.ip_addresses, null)
-  #   }
-  # }
-
-  backend_http_settings {
-    name                  = var.backend_http_settings.name
-    cookie_based_affinity = var.backend_http_settings.cookie_based_affinity
-    port                  = var.backend_http_settings.port
-    protocol              = var.backend_http_settings.protocol
-    request_timeout       = var.backend_http_settings.request_timeout
-  }
-
-  # dynamic "backend_http_settings" {
-  #   for_each = var.backend_http_settings
-
-  #   content {
-  #     name                                = backend_http_settings.value.name # var.application_gateway_applications[backend_http_settings.key].name
-  #     cookie_based_affinity               = try(backend_http_settings.value.cookie_based_affinity, "Disabled")
-  #     affinity_cookie_name                = try(backend_http_settings.value.affinity_cookie_name, null)
-  #     port                                = backend_http_settings.value.port
-  #     protocol                            = backend_http_settings.value.protocol
-  #     request_timeout                     = try(backend_http_settings.value.request_timeout, 30)
-  #     pick_host_name_from_backend_address = try(backend_http_settings.value.pick_host_name_from_backend_address, false)
-  #     trusted_root_certificate_names      = try(backend_http_settings.value.trusted_root_certificate_names, null)
-  #     host_name                           = try(backend_http_settings.value.host_name, null)
-  #     probe_name                          = try(backend_http_settings.value.probe_name, null) # try(local.probes[format("%s-%s", backend_http_settings.key, backend_http_settings.value.probe_key)].name, null)
-  #     dynamic "connection_draining" {
-  #       for_each = try(backend_http_settings.value.connection_draining, null) == null ? [] : [1]
-  #       content {
-  #         enabled           = try(backend_http_settings.value.connection_draining.enabled, false)
-  #         drain_timeout_sec = try(backend_http_settings.value.connection_draining.drain_timeout_sec, 120)
-  #       }
-  #     }
-  #   }
-  # }
-
-  frontend_ip_configuration {
-      name                          = var.frontend_ip_configuration.name
-      public_ip_address_id          = try(var.frontend_ip_configuration.public_ip_address_id, null) # try(local.ip_configuration[frontend_ip_configuration.key].ip_address_id, null)
-      private_ip_address            = try(var.frontend_ip_configuration.public_ip_key, null) # try(frontend_ip_configuration.value.public_ip_key, null) == null ? var.private_ip_address : null
-      private_ip_address_allocation = try(var.frontend_ip_configuration.private_ip_address_allocation, null)
-      subnet_id                     = try(var.frontend_ip_configuration.subnet_id, null) # local.ip_configuration[frontend_ip_configuration.key].subnet_id
-  }
-
-  # dynamic "frontend_ip_configuration" {
-  #   for_each = var.frontend_ip_configuration
-
-  #   content {
-  #     name                          = frontend_ip_configuration.value.name
-  #     public_ip_address_id          = try(frontend_ip_configuration.value.public_ip_address_id, null) # try(local.ip_configuration[frontend_ip_configuration.key].ip_address_id, null)
-  #     private_ip_address            = try(frontend_ip_configuration.value.public_ip_key, null) # try(frontend_ip_configuration.value.public_ip_key, null) == null ? var.private_ip_address : null
-  #     private_ip_address_allocation = try(frontend_ip_configuration.value.private_ip_address_allocation, null)
-  #     subnet_id                     = try(frontend_ip_configuration.value.subnet_id, null) # local.ip_configuration[frontend_ip_configuration.key].subnet_id
-  #   }
-  # }
-
-  frontend_port {
-    name = var.frontend_port.name
-    port = var.frontend_port.port
-  }
-
-
-  # dynamic "frontend_port" {
-  #   for_each = var.frontend_port
-
-  #   content {
-  #     name = frontend_port.value.name
-  #     port = frontend_port.value.port
-  #   }
-  # }
-  gateway_ip_configuration {
-    name      = var.gateway_ip_configuration.name # azurecaf_name.agw.result
-    subnet_id = var.gateway_ip_configuration.subnet_id # local.ip_configuration["gateway"].subnet_id
-  }
-  http_listener {
-      name                           = var.http_listener.name
-      frontend_ip_configuration_name = var.http_listener.frontend_ip_configuration_name # var.front_end_ip_configurations[http_listener.value.front_end_ip_configuration_key].name
-      frontend_port_name             = var.http_listener.frontend_port_name # var.front_end_ports[http_listener.value.front_end_port_key].name
-      protocol                       = try(var.http_listener.protocol, null) # var.front_end_ports[http_listener.value.front_end_port_key].protocol
-      host_name                      = try(var.http_listener.host_name, null) # try(trimsuffix((try(http_listener.value.host_names, null) == null ? try(var.dns_zones[try(http_listener.value.dns_zone.lz_key, var.client_config.landingzone_key)][http_listener.value.dns_zone.key].records[0][http_listener.value.dns_zone.record_type][http_listener.value.dns_zone.record_key].fqdn, http_listener.value.host_name) : null), "."), null)
-      host_names                     = try(var.http_listener.host_names, null) # try(http_listener.value.host_name, null) == null ? try(http_listener.value.host_names, null) : null
-      require_sni                    = try(var.http_listener.require_sni, null) # try(http_listener.value.require_sni, false)
-      ssl_certificate_name           = try(var.http_listener.ssl_certificate_name, null) # try(try(try(http_listener.value.keyvault_certificate_request.key, http_listener.value.keyvault_certificate.certificate_key), data.azurerm_key_vault_certificate.manual_certs[http_listener.key].name), null)
-      firewall_policy_id             = try(var.http_listener.firewall_policy_id, null) # try(var.application_gateway_waf_policies[try(http_listener.value.waf_policy.lz_key, var.client_config.landingzone_key)][http_listener.value.waf_policy.key].id, null)
-  }
-
-  # dynamic "http_listener" {
-  #   for_each = var.http_listener
-
-  #   content {
-  #     name                           = http_listener.value.name
-  #     frontend_ip_configuration_name = http_listener.value.frontend_ip_configuration_name # var.front_end_ip_configurations[http_listener.value.front_end_ip_configuration_key].name
-  #     frontend_port_name             = http_listener.value.frontend_port_name # var.front_end_ports[http_listener.value.front_end_port_key].name
-  #     protocol                       = try(http_listener.value.protocol, null) # var.front_end_ports[http_listener.value.front_end_port_key].protocol
-  #     host_name                      = try(http_listener.value.host_name, null) # try(trimsuffix((try(http_listener.value.host_names, null) == null ? try(var.dns_zones[try(http_listener.value.dns_zone.lz_key, var.client_config.landingzone_key)][http_listener.value.dns_zone.key].records[0][http_listener.value.dns_zone.record_type][http_listener.value.dns_zone.record_key].fqdn, http_listener.value.host_name) : null), "."), null)
-  #     host_names                     = try(http_listener.value.host_names, null) # try(http_listener.value.host_name, null) == null ? try(http_listener.value.host_names, null) : null
-  #     require_sni                    = try(http_listener.value.require_sni, null) # try(http_listener.value.require_sni, false)
-  #     ssl_certificate_name           = try(http_listener.value.ssl_certificate_name, null) # try(try(try(http_listener.value.keyvault_certificate_request.key, http_listener.value.keyvault_certificate.certificate_key), data.azurerm_key_vault_certificate.manual_certs[http_listener.key].name), null)
-  #     firewall_policy_id             = try(http_listener.value.firewall_policy_id, null) # try(var.application_gateway_waf_policies[try(http_listener.value.waf_policy.lz_key, var.client_config.landingzone_key)][http_listener.value.waf_policy.key].id, null)
-  #   }
-  # }
-
-
-  dynamic "request_routing_rule" {
-    for_each = try(var.request_routing_rule, null) == null ? [] : [1]
+  dynamic "backend_address_pool" {
+    for_each = var.backend_address_pool
 
     content {
-      name               = try(var.request_routing_rule.name, null) # "${try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.prefix, "")}${request_routing_rule.value.name}"
-      rule_type          = try(var.request_routing_rule.rule_type, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.rule_type, "Basic")
-      http_listener_name = try(var.request_routing_rule.http_listener_name, null) # request_routing_rule.value.name
+      name         = backend_address_pool.value.name
+      fqdns        = try(backend_address_pool.value.fqdns, null) 
+      ip_addresses = try(backend_address_pool.value.ip_addresses, null)
+    }
+  }
 
-      # backend_http_settings_name and backend_address_pool_name are mutually exclusive with redirect_configuration_name
-      backend_http_settings_name  = try(var.request_routing_rule.backend_http_settings_name, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.redirect_configuration_name, null) == null ? local.backend_http_settings[request_routing_rule.value.app_key].name : null
-      backend_address_pool_name   = try(var.request_routing_rule.backend_address_pool_name, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.redirect_configuration_name, null) == null ? local.backend_pools[request_routing_rule.value.app_key].name : null
-      redirect_configuration_name = try(var.request_routing_rule.redirect_configuration_name, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.redirect_configuration_name, null)
+  dynamic "backend_http_settings" {
+    for_each = var.backend_http_settings
 
-      url_path_map_name = try(var.request_routing_rule.url_path_map_name, null) # try(
-      #   local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.url_path_map_name,
-      #   try(
-      #     local.url_path_maps[format("%s-%s", request_routing_rule.value.app_key, local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.url_path_map_key)].name,
-      #     null
-      #   )
-      # )
-      rewrite_rule_set_name = try(var.request_routing_rule.rewrite_rule_set_name, null) # try(local.rewrite_rule_sets[format("%s-%s", request_routing_rule.value.app_key, local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.rewrite_rule_set_key)].name, null)
-      priority              = try(var.request_routing_rule.priority, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.priority, null)
+    content {
+      name                  = backend_http_settings.value.name
+      cookie_based_affinity = try(backend_http_settings.value.cookie_based_affinity, null) 
+      port                  = try(backend_http_settings.value.port, null) 
+      protocol              = try(backend_http_settings.value.protocol, null) 
+      request_timeout       = try(backend_http_settings.value.request_timeout, null) 
+    }
+  }
+
+  dynamic "frontend_ip_configuration" {
+    for_each = var.frontend_ip_configuration
+
+    content {
+      name                          = frontend_ip_configuration.value.name
+      public_ip_address_id          = try(frontend_ip_configuration.value.public_ip_address_id, null) # try(local.ip_configuration[frontend_ip_configuration.key].ip_address_id, null)
+      private_ip_address            = try(frontend_ip_configuration.value.private_ip_address, null) # try(frontend_ip_configuration.value.public_ip_key, null) == null ? var.private_ip_address : null
+      private_ip_address_allocation = try(frontend_ip_configuration.value.private_ip_address_allocation, null) # Dynamic and Static default to Dynamic
+      subnet_id                     = try(frontend_ip_configuration.value.subnet_id, null) # local.ip_configuration[frontend_ip_configuration.key].subnet_id
+    }
+  }
+
+  dynamic "frontend_port" {
+    for_each = var.frontend_port
+
+    content {
+      name = frontend_port.value.name
+      port = frontend_port.value.port
+    }
+  }
+
+  dynamic "gateway_ip_configuration" {
+    for_each = var.gateway_ip_configuration
+
+    content {
+      name      = gateway_ip_configuration.value.name 
+      subnet_id = gateway_ip_configuration.value.subnet_id   
     }
   }  
+
+  dynamic "http_listener" {
+    for_each = var.http_listener
+
+    content {
+      name                           = http_listener.value.name
+      frontend_ip_configuration_name = http_listener.value.frontend_ip_configuration_name 
+      frontend_port_name             = http_listener.value.frontend_port_name 
+      protocol                       = try(http_listener.value.protocol, null) 
+      host_name                      = try(http_listener.value.host_name, null) 
+      host_names                     = try(http_listener.value.host_names, null) 
+      require_sni                    = try(http_listener.value.require_sni, null) 
+      ssl_certificate_name           = try(http_listener.value.ssl_certificate_name, null) 
+      firewall_policy_id             = try(http_listener.value.firewall_policy_id, null) 
+    }
+  }
+
+  dynamic "request_routing_rule" {
+    for_each = var.request_routing_rule    
+
+    content {
+      name               = try(request_routing_rule.value.name, null) # "${try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.prefix, "")}${request_routing_rule.value.name}"
+      rule_type          = try(request_routing_rule.value.rule_type, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.rule_type, "Basic")
+      http_listener_name = try(request_routing_rule.value.http_listener_name, null) # request_routing_rule.value.name
+
+      # backend_http_settings_name and backend_address_pool_name are mutually exclusive with redirect_configuration_name
+      backend_http_settings_name  = try(request_routing_rule.value.backend_http_settings_name, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.redirect_configuration_name, null) == null ? local.backend_http_settings[request_routing_rule.value.app_key].name : null
+      backend_address_pool_name   = try(request_routing_rule.value.backend_address_pool_name, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.redirect_configuration_name, null) == null ? local.backend_pools[request_routing_rule.value.app_key].name : null
+      redirect_configuration_name = try(request_routing_rule.value.redirect_configuration_name, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.redirect_configuration_name, null)
+
+      url_path_map_name = try(request_routing_rule.value.url_path_map_name, null) # try(
+      rewrite_rule_set_name = try(request_routing_rule.value.rewrite_rule_set_name, null) # try(local.rewrite_rule_sets[format("%s-%s", request_routing_rule.value.app_key, local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.rewrite_rule_set_key)].name, null)
+      priority              = try(request_routing_rule.value.priority, null) # try(local.request_routing_rules[format("%s-%s", request_routing_rule.value.app_key, request_routing_rule.value.request_routing_rule_key)].rule.priority, null)
+    }
+  }  
+
   sku {
     name     = try(var.sku.name, null)
     tier     = try(var.sku.tier, null)

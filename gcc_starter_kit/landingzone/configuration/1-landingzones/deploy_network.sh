@@ -87,6 +87,11 @@ if [ $? -eq 0 ]; then
   executeTerraform
 fi 
 
+if [ $? -eq 0 ]; then
+  CURRENT_DIR=/tf/avm/gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_peering
+  executeTerraform
+fi 
+
 echo "end deploying gcc starter kit"
 
 
