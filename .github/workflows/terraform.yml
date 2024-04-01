@@ -48,7 +48,13 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-
+  workflow_call:
+    inputs:
+      ARM_CLIENT_ID:
+        description: 'ARM CLIENT ID'
+        type: string
+        default: '0854efab-9245-4e7e-997c-2c6efe5140fc'
+        
 permissions:
   contents: read
 
@@ -67,8 +73,27 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Echo execute bash commands
+      
+    - name: Echo execute bash commands1
       run: |
            echo hello world!!!
+           pwd
+           echo end hello world!!!!!
+      
+    - name: Echo execute bash commands2
+      run: |
+           echo hello world!!!2
+           pwd
+           echo end hello world!!!!!
+      
+    - name: Echo execute bash commands3
+      run: |
+           echo hello world!!!3
+           pwd
+           echo end hello world!!!!!
+      
+    - name: Echo execute bash commands4
+      run: |
+           echo hello world!!!4
            pwd
            echo end hello world!!!!!
