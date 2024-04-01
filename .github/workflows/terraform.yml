@@ -79,25 +79,25 @@ jobs:
            echo hello world!!!
            pwd
            echo end hello world!!!!!
-           echo $${{ github.event.inputs.ARM_CLIENT_ID }}
+           echo "$${{ github.event.inputs.ARM_CLIENT_ID }}"
       
     - name: Echo execute bash commands2
       run: |
            echo hello world!!!2
            pwd
            echo end hello world!!!!!
-           echo $${{ github.event.inputs.ARM_CLIENT_ID }}           
+           echo "$${{ github.event.inputs.ARM_CLIENT_ID }}"   
       
     - name: Echo execute bash commands3
       run: |
            echo hello world!!!3
            pwd
            echo end hello world!!!!!
-           echo $${{ github.event.inputs.ARM_CLIENT_ID }}
+           echo "$${{ github.event.inputs.ARM_CLIENT_ID }}"
       
     - name: Echo execute bash commands4
       run: |
            echo hello world!!!4
            pwd
            echo end hello world!!!!!
-           echo $${{ github.event.inputs.ARM_CLIENT_ID }}
+           echo "$${{ github.event.inputs.ARM_CLIENT_ID }}"
