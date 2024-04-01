@@ -1,10 +1,11 @@
 module "keyvault" {
+  # TODO: grant spn to be secret reader  
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.5.2"  
 
   enable_telemetry              = var.enable_telemetry
   location                        = azurerm_resource_group.this.location
-  name                            = "${module.naming.key_vault.name}-${random_string.this.result}-2" # module.naming.key_vault.name_unique
+  name                            = "${module.naming.key_vault.name}-${random_string.this.result}-${random_string.this.result}" # module.naming.key_vault.name_unique
   resource_group_name             = azurerm_resource_group.this.name
   sku_name                        = "standard"  
   tenant_id                     = data.azurerm_client_config.current.tenant_id
@@ -27,8 +28,20 @@ module "keyvault" {
 
   network_acls = {
     bypass = "AzureServices" # The bypass value must be either `AzureServices` or `None`.
-    ip_rules = ["116.86.249.165","0.0.0.0/0"] # TODO: how to set this.
+    ip_rules = ["0.0.0.0/0"] # TODO: how to set this.
   }
+
+  role_assignments = {
+    deployment_user_secrets = {
+      role_definition_id_or_name = "Key Vault Secrets Officer"
+      principal_id               = data.azurerm_client_config.current.object_id
+    }
+  }
+
+  wait_for_rbac_before_secret_operations = {
+    create = "60s"
+  }
+
 }
 
 # Generate sql server random admin password if not provided in the attribute administrator_login_password

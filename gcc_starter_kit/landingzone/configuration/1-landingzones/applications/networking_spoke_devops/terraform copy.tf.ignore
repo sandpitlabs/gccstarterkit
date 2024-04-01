@@ -1,0 +1,55 @@
+provider "azurerm" {
+  skip_provider_registration = true   # added
+  features {}
+}
+
+# Configure Terraform backend
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.7.0, < 4.0.0"
+    }
+  }
+  backend "azurerm" {}  
+  # backend "azurerm" {
+  #     resource_group_name  = "aoaidev-rg-launchpad" # DO NOT CHANGE - codegen 
+  #     storage_account_name = "aoaidevstgtfstatewny" # DO NOT CHANGE - codegen 
+  #     container_name       = "1-landingzones" # DO NOT CHANGE - codegen
+  #     key                  = "network-spoke-devops.tfstate" 
+  # }  
+}
+
+          # terraform init \
+          # -backend-config="resource_group_name=$${{vars.BACKEND_AZURE_RESOURCE_GROUP_NAME}}" \
+          # -backend-config="storage_account_name=$${{vars.BACKEND_AZURE_STORAGE_ACCOUNT_NAME}}" \
+          # -backend-config="container_name=$${{vars.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME}}" \
+          # -backend-config="key=terraform.tfstate"
+
+# terraform {
+#   required_version = "~> 1.6"
+#   required_providers {
+#     azurerm = "~> 3.88"
+#   }
+#   # backend "azurerm" {}
+# }
+
+# provider "azurerm" {
+#   skip_provider_registration = true
+#   features {}
+# }
+
+# provider "azurerm" {
+#   skip_provider_registration = true
+#   alias                      = "management"
+#   subscription_id            = var.subscription_id_management
+#   features {}
+# }
+
+# provider "azurerm" {
+#   skip_provider_registration = true
+#   alias                      = "connectivity"
+#   subscription_id            = var.subscription_id_connectivity
+#   features {}
+# }

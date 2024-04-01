@@ -1,4 +1,5 @@
 provider "azurerm" {
+  skip_provider_registration = true   
   features {}
 }
 
@@ -11,10 +12,5 @@ terraform {
       version = ">= 3.7.0, < 4.0.0"
     }
   }
-  backend "azurerm" {
-      resource_group_name  = "aoaidev-rg-launchpad" # DO NOT CHANGE - codegen 
-      storage_account_name = "aoaidevstgtfstatewny" # DO NOT CHANGE - codegen 
-      container_name       = "1-landingzones" # DO NOT CHANGE - codegen
-      key                  = "network-spoke-management.tfstate" 
-  }  
+  backend "azurerm" {}  
 }

@@ -1,7 +1,7 @@
 module "natgateway" {
   source  = "Azure/avm-res-network-natgateway/azurerm"
 
-  name                = module.naming.nat_gateway.name_unique
+  name                = "${module.naming.nat_gateway.name}-${random_string.this.result}"
   enable_telemetry    = true
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
@@ -24,7 +24,7 @@ module "public_ip1" {
 
   enable_telemetry    = var.enable_telemetry
   resource_group_name = azurerm_resource_group.this.name
-  name                = "${module.naming.public_ip.name_unique}zaq"
+  name                = "${module.naming.public_ip.name_unique}-${random_string.this.result}"
   location            = azurerm_resource_group.this.location 
   sku = "Standard"
 }

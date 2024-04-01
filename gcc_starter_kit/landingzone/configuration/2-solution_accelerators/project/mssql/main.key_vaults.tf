@@ -1,4 +1,5 @@
 module "keyvault" {
+  # TODO: grant spn to be secret reader  
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.5.2"  
 
@@ -27,7 +28,7 @@ module "keyvault" {
 
   network_acls = {
     bypass = "AzureServices" # The bypass value must be either `AzureServices` or `None`.
-    ip_rules = ["116.86.249.165","0.0.0.0/0"] # TODO: how to set this.
+    ip_rules = ["0.0.0.0/0"] # TODO: how to set this.
   }
 
   role_assignments = {
@@ -39,7 +40,7 @@ module "keyvault" {
 
   wait_for_rbac_before_secret_operations = {
     create = "60s"
-  }
+  }  
 }
 
 # Generate sql server random admin password if not provided in the attribute administrator_login_password

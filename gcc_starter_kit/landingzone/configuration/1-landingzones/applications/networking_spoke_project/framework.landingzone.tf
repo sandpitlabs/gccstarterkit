@@ -25,11 +25,19 @@ If it is set to false, then no telemetry will be collected.
 DESCRIPTION
 }
 
+variable "resource_group_name" {
+  type        = string
+}
+
+variable "storage_account_name" {
+  type        = string
+}
+
 module "landingzone" {
   source="./../../../../../../modules/framework/terraform-azurerm-mspsdi-avm-res-framework-landingzone"
 
-  resource_group_name  = "aoaidev-rg-launchpad" # DO NOT CHANGE - codegen
-  storage_account_name = "aoaidevstgtfstatewny" # DO NOT CHANGE - codegen 
+  resource_group_name  = var.resource_group_name # "aoaidev-rg-launchpad" # DO NOT CHANGE - codegen
+  storage_account_name = var.storage_account_name # "aoaidevstgtfstatewny" # DO NOT CHANGE - codegen 
 }
 
 module "naming" {
@@ -55,34 +63,3 @@ locals {
   global_settings = module.landingzone.global_settings   
   remote =  module.landingzone.remote # remote virtual networks resources   
 } 
-
-# example usage
-# local.remote.networking.virtual_networks.hub_internet_ingress.id 
-# local.remote.networking.virtual_networks.hub_internet_ingress.name 
-# local.remote.networking.virtual_networks.hub_internet_egress.id 
-# local.remote.networking.virtual_networks.hub_internet_egress.name 
-
-# example: local variables structure
-# # local remote variables
-# locals {
-#   global_settings = data.terraform_remote_state.gcci_platform.outputs.global_settings   
-#   # virtual network name - from gcci-platform
-#   remote = {
-#     networking = {
-#       virtual_networks = {
-#         hub_internet_ingress = data.terraform_remote_state.gcci_platform.outputs.hub_internet_ingress
-#         hub_internet_egress = data.terraform_remote_state.gcci_platform.outputs.hub_internet_egress
-#         hub_intranet_ingress = data.terraform_remote_state.gcci_platform.outputs.hub_intranet_ingress
-#         hub_intranet_egress = data.terraform_remote_state.gcci_platform.outputs.hub_intranet_egress
-#         spoke_project = data.terraform_remote_state.gcci_platform.outputs.spoke_project
-#         spoke_management = data.terraform_remote_state.gcci_platform.outputs.spoke_management
-#         spoke_devops = data.terraform_remote_state.gcci_platform.outputs.spoke_devops
-#       }
-#     }
-#     log_analytics_workspace = {
-#       name = data.terraform_remote_state.gcci_platform.outputs.gcci_agency_workspace.name
-#       id = data.terraform_remote_state.gcci_platform.outputs.gcci_agency_workspace.id 
-#     }
-#     resource_group = data.terraform_remote_state.gcci_platform.outputs.gcci_platform
-#   }
-# } 

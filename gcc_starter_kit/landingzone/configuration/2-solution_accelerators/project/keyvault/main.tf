@@ -7,6 +7,8 @@ module "keyvault" {
   location                      = azurerm_resource_group.this.location
   resource_group_name           = azurerm_resource_group.this.name
   tenant_id                     = data.azurerm_client_config.current.tenant_id
+  purge_protection_enabled      = false # var.purge_protection_enabled
+  soft_delete_retention_days    = 7 # var.soft_delete_retention_days  
   public_network_access_enabled = false
   private_endpoints = {
     primary = {
