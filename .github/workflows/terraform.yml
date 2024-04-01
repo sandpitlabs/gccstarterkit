@@ -67,3 +67,8 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Echo execute bash commands
+      run: |
+           echo hello world!!!
+           pwd
+           echo end hello world!!!!!
