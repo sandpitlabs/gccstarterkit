@@ -73,11 +73,24 @@ jobs:
         SUB_NAME=$(echo "$ACCOUNT_INFO" | jq ".name" -r)
         echo "Subscription Id: ${SUB_ID}"
         echo "Subscription Name: ${SUB_NAME}"
-    - name: clone templates from github
-      run: |      
-        git clone https://github.com/sandpitlabs/gccstarterkit ./gcc_starter_kit
-    - name: copy config.yaml to gcc_starter_kit
-      run: |      
-        echo copy config.yaml to gcc_starter_kit
-        chmod -R -f 777 ./gcc_starter_kit/templates
-        cp config.yaml ./gcc_starter_kit/templates
+    # - name: clone templates from github
+    #  run: |      
+    #    git clone https://github.com/sandpitlabs/gccstarterkit ./gcc_starter_kit
+    #- name: copy config.yaml to gcc_starter_kit
+    #  run: |      
+    #    echo copy config.yaml to gcc_starter_kit
+    #    chmod -R -f 777 ./gcc_starter_kit/templates
+    #    cp config.yaml ./gcc_starter_kit/templates
+    
+    # networking
+    - name: create network spoke project
+      run: |    
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_spoke_project
+        pwd
