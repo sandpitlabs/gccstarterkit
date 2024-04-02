@@ -16,7 +16,7 @@ module "container_group1" {
 
   containers = {
     nginx = { # container.key
-      image  = "nginx:latest"
+      image  = "gccstarterkit/gccstarterkit-avm-sde:0.1" # "nginx:latest"
       cpu    = 1
       memory = 2
       ports = {
