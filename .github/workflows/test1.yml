@@ -1,0 +1,469 @@
+# This is a basic workflow that is manually triggered
+
+name: Manual workflow
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      name:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'Person to greet'
+        # Default value if no value is explicitly provided
+        # Input has to be provided for the workflow to run
+        required: true
+        # The data type of the input
+        type: string
+      ARM_CLIENT_ID:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'ARM CLIENT ID'
+        # Default value if no value is explicitly provided
+        default: '0854efab-9245-4e7e-997c-2c6efe5140fc'
+        # Input has to be provided for the workflow to run
+        required: true
+        # The data type of the input
+        type: string
+      ARM_CLIENT_SECRET:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'ARM CLIENT SECRET'
+        # Default value if no value is explicitly provided
+        # Input has to be provided for the workflow to run
+        required: true
+        # The data type of the input
+        type: string
+      ARM_SUBSCRIPTION_ID:
+        description: 'ARM SUBSCRIPTION ID'
+        default: '0b5b13b8-0ad7-4552-936f-8fae87e0633f'        
+        required: true        
+        type: string
+      ARM_TENANT_ID:
+        description: 'ARM TENANT ID'
+        default: 'ac20add1-ffda-45c1-adc5-16a0db15810f'
+        required: true            
+        type: string
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "greet"
+  greet:
+    # The type of runner that the job will run on
+    runs-on: self-hosted
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Runs a single command using the runners shell
+    - name: Send greeting
+      run: echo "Hello ${{ inputs.name }} - ${{ inputs.ARM_CLIENT_ID }}"
+    - name: azure login
+      run: |
+        # az login --identity
+        # login with service-principal
+        echo "login with service-principal"
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID }}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID }}" 
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID }}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID }}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID }}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID }}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        echo get current account information
+        ACCOUNT_INFO=$(az account show 2> /dev/null)
+        SUB_ID=$(echo "$ACCOUNT_INFO" | jq ".id" -r)
+        SUB_NAME=$(echo "$ACCOUNT_INFO" | jq ".name" -r)
+        echo "Subscription Id: ${SUB_ID}"
+        echo "Subscription Name: ${SUB_NAME}"
+    # - name: clone templates from github
+    #  run: |      
+    #    git clone https://github.com/sandpitlabs/gccstarterkit ./gcc_starter_kit
+    #- name: copy config.yaml to gcc_starter_kit
+    #  run: |      
+    #    echo copy config.yaml to gcc_starter_kit
+    #    chmod -R -f 777 ./gcc_starter_kit/templates
+    #    cp config.yaml ./gcc_starter_kit/templates
+    
+    # networking
+    - name: create network spoke project
+      run: |    
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_spoke_project
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-spoke-project.tfstate"
+        echo performing terraform plan
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+
+    - name: create network spoke devops
+      run: |  
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_spoke_devops
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-spoke-devops.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+
+    - name: create network hub internet egress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_egress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-internet-egress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+    - name: create network hub internet ingress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_ingress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-internet-ingress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"  
+
+    - name: create network hub internet egress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_egress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-intranet-egress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+ 
+
+    - name: create network hub internet ingress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_ingress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-intranet-ingress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"   
+      
+    - name: create network spoke management
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_spoke_management
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-spoke-management.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+   
+
+# solution accelerators        
+# hub internet
+    - name: create hub internet agw
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/hub_internet_ingress/agw
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-agw.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+    - name: create hub internet firewall
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/hub_internet_ingress/firewall_ingress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-firewall-ingress-internet.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+# management
+    - name: create management bastion host
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/management/bastion_host
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-management-bastionhost.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+    - name: create management vm
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/management/vm
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-management-virtualmachine.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+# devops
+    - name: create devops runner containter instance
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/devops/containter_instance
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-devops-containergroup.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+# project
+    - name: create service acr
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/acr
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-acr.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+    - name: create app aks
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/aks
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-akscluster.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+    - name: create db mssql
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/mssql
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=2-solution-accelerators" \
+        -backend-config="key=solution-accelerators-mssql.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+  
