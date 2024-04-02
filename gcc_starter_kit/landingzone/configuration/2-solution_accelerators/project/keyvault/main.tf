@@ -47,26 +47,26 @@ module "private_dns_zones" {
     }
 }
 
-module "private_endpoint" {
-  source = "./../../../../../../modules/networking/terraform-azurerm-mspsdi-avm-res-network-privateendpoint"
+# module "private_endpoint" {
+#   source = "./../../../../../../modules/networking/terraform-azurerm-mspsdi-avm-res-network-privateendpoint"
   
-  name                           = "${module.keyvault.resource.name}PrivateEndpoint"
-  location                       = azurerm_resource_group.this.location
-  resource_group_name            = azurerm_resource_group.this.name
-  subnet_id                      = local.remote.networking.virtual_networks.spoke_project.virtual_subnets.subnets["ServiceSubnet"].id 
-  tags                           = {
-      env = local.global_settings.environment 
-    }
-  private_connection_resource_id = module.keyvault.resource.id
-  is_manual_connection           = false
-  subresource_name               = "Vault"
-  private_dns_zone_group_name    = "KvPrivateDnsZoneGroup"
-  private_dns_zone_group_ids     = [module.private_dns_zones.private_dnz_zone_output.id] 
+#   name                           = "${module.keyvault.resource.name}PrivateEndpoint"
+#   location                       = azurerm_resource_group.this.location
+#   resource_group_name            = azurerm_resource_group.this.name
+#   subnet_id                      = local.remote.networking.virtual_networks.spoke_project.virtual_subnets.subnets["ServiceSubnet"].id 
+#   tags                           = {
+#       env = local.global_settings.environment 
+#     }
+#   private_connection_resource_id = module.keyvault.resource.id
+#   is_manual_connection           = false
+#   subresource_name               = "Vault"
+#   private_dns_zone_group_name    = "KvPrivateDnsZoneGroup"
+#   private_dns_zone_group_ids     = [module.private_dns_zones.private_dnz_zone_output.id] 
 
-  depends_on = [
-    module.keyvault,
-  ]  
-}
+#   depends_on = [
+#     module.keyvault,
+#   ]  
+# }
 
 resource "azurerm_key_vault_access_policy" "this" {
   key_vault_id = module.keyvault.resource.id
