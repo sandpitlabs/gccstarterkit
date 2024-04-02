@@ -118,7 +118,7 @@ jobs:
         export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
         export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
         export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
-        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_spoke_devops
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_spoke_devops
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
@@ -144,7 +144,7 @@ jobs:
         export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
         export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
         export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
-        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_egress
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_egress
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
@@ -169,7 +169,7 @@ jobs:
         export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
         export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
         export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
-        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_ingress
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_ingress
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
@@ -194,7 +194,7 @@ jobs:
         export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
         export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
         export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
-        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_egress
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_egress
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
@@ -220,7 +220,7 @@ jobs:
         export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
         export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
         export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
-        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_ingress
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_ingress
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
@@ -245,7 +245,7 @@ jobs:
         export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
         export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
         export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
-        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_spoke_management
+        cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_spoke_management
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
