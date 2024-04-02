@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Manual workflow
+name: GCC Starter kit workflow
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -8,14 +8,6 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        # Input has to be provided for the workflow to run
-        required: true
-        # The data type of the input
-        type: string
       ARM_CLIENT_ID:
         # Friendly description to be shown in the UI instead of 'name'
         description: 'ARM CLIENT ID'
@@ -47,7 +39,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  greet:
+  gcc_starter_kit:
     # The type of runner that the job will run on
     runs-on: self-hosted
 
@@ -55,7 +47,7 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Send greeting
-      run: echo "Hello ${{ inputs.name }} - ${{ inputs.ARM_CLIENT_ID }}"
+      run: echo "Hello ${{ inputs.ARM_CLIENT_ID }}"
     - name: azure login
       run: |
         # az login --identity
@@ -73,14 +65,6 @@ jobs:
         SUB_NAME=$(echo "$ACCOUNT_INFO" | jq ".name" -r)
         echo "Subscription Id: ${SUB_ID}"
         echo "Subscription Name: ${SUB_NAME}"
-    # - name: clone templates from github
-    #  run: |      
-    #    git clone https://github.com/sandpitlabs/gccstarterkit ./gcc_starter_kit
-    #- name: copy config.yaml to gcc_starter_kit
-    #  run: |      
-    #    echo copy config.yaml to gcc_starter_kit
-    #    chmod -R -f 777 ./gcc_starter_kit/templates
-    #    cp config.yaml ./gcc_starter_kit/templates
     
     # networking
     - name: create network spoke project
@@ -96,16 +80,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=1-landingzones" \
         -backend-config="key=network-spoke-project.tfstate"
         echo performing terraform plan
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
 
@@ -122,16 +106,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=1-landingzones" \
         -backend-config="key=network-spoke-devops.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
 
@@ -148,16 +132,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=1-landingzones" \
         -backend-config="key=network-hub-internet-egress.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
     - name: create network hub internet ingress
@@ -173,16 +157,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=1-landingzones" \
         -backend-config="key=network-hub-internet-ingress.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"  
 
     - name: create network hub internet egress
@@ -198,16 +182,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=1-landingzones" \
         -backend-config="key=network-hub-intranet-egress.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
  
 
@@ -224,16 +208,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=1-landingzones" \
         -backend-config="key=network-hub-intranet-ingress.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"   
       
     - name: create network spoke management
@@ -249,16 +233,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=1-landingzones" \
         -backend-config="key=network-spoke-management.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
    
 
@@ -277,16 +261,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
-        -backend-config="key=solution-accelerators-agw.tfstate"
+        -backend-config="key=solution-accelerators-hub-internet-ingress-agw.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
     - name: create hub internet firewall
@@ -302,16 +286,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
-        -backend-config="key=solution-accelerators-firewall-ingress-internet.tfstate"
+        -backend-config="key=solution-accelerators-hub-internet-ingress-firewall.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
 # management
@@ -328,16 +312,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
         -backend-config="key=solution-accelerators-management-bastionhost.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
     - name: create management vm
@@ -353,16 +337,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
-        -backend-config="key=solution-accelerators-management-virtualmachine.tfstate"
+        -backend-config="key=solution-accelerators-management-vm.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
 # devops
@@ -379,16 +363,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
-        -backend-config="key=solution-accelerators-devops-containergroup.tfstate"
+        -backend-config="key=solution-accelerators-devops-containerinstance.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
 # project
@@ -405,16 +389,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
         -backend-config="key=solution-accelerators-acr.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
     - name: create app aks
@@ -430,16 +414,16 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
-        -backend-config="key=solution-accelerators-akscluster.tfstate"
+        -backend-config="key=solution-accelerators-aks.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
 
     - name: create db mssql
@@ -455,15 +439,15 @@ jobs:
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
-        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
         -backend-config="container_name=2-solution-accelerators" \
         -backend-config="key=solution-accelerators-mssql.tfstate"
         echo performing terraform apply
         terraform plan \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
         echo performing terraform apply
         terraform apply -auto-approve \
-        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
         -var="resource_group_name=aoaidev-rg-launchpad"
   
