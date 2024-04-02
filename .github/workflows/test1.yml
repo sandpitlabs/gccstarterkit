@@ -73,4 +73,11 @@ jobs:
         SUB_NAME=$(echo "$ACCOUNT_INFO" | jq ".name" -r)
         echo "Subscription Id: ${SUB_ID}"
         echo "Subscription Name: ${SUB_NAME}"
-      
+    - name: clone templates from github
+      run: |      
+        git clone https://github.com/sandpitlabs/gccstarterkit ./gcc_starter_kit
+    - name: copy config.yaml to gcc_starter_kit
+      run: |      
+        echo copy config.yaml to gcc_starter_kit
+        chmod -R -f 777 ./gcc_starter_kit/templates
+        cp config.yaml ./gcc_starter_kit/templates
