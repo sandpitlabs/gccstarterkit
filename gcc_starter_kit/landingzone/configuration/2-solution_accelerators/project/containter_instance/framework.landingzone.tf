@@ -31,8 +31,8 @@ variable "storage_account_name" {
 module "landingzone" {
   source="./../../../../../../modules/framework/terraform-azurerm-mspsdi-avm-res-framework-landingzone"
 
-  resource_group_name  = var.resource_group_name # "aoaidev-rg-launchpad" # DO NOT CHANGE - codegen
-  storage_account_name = var.storage_account_name # "aoaidevstgtfstatewny" # DO NOT CHANGE - codegen 
+  resource_group_name  = var.resource_group_name 
+  storage_account_name = var.storage_account_name 
 }
 
 module "naming" {

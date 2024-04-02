@@ -103,3 +103,11 @@ module "virtualmachine1" {
     module.avm_res_keyvault_vault
   ]
 }
+
+
+      # - identity {
+      #     - identity_ids = [
+      #         - "/subscriptions/0b5b13b8-0ad7-4552-936f-8fae87e0633f/resourceGroups/Built-In-Identity-RG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/Built-In-Identity-southeastasia",
+      #       ] -> null
+      #     - type         = "UserAssigned" -> null
+      #   }

@@ -40,7 +40,8 @@ module "keyvault" {
 
   wait_for_rbac_before_secret_operations = {
     create = "60s"
-  }  
+  }
+
 }
 
 # Generate sql server random admin password if not provided in the attribute administrator_login_password

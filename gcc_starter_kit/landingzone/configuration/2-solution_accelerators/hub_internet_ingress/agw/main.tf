@@ -135,6 +135,4 @@ module "application_gateway" {
       }
     }
   }
-
-
 }

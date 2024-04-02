@@ -1,5 +1,4 @@
 provider "azurerm" {
-  skip_provider_registration = true   
   features {}
 }
 
@@ -12,5 +11,5 @@ terraform {
       version = ">= 3.7.0, < 4.0.0"
     }
   }
-  backend "azurerm" {}  
+  backend "azurerm" {}
 }
