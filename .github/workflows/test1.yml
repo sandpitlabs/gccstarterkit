@@ -93,7 +93,6 @@ jobs:
         export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
         export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
         cd ./gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_spoke_project
-        pwd
         echo performing terraform init
         terraform init  -reconfigure \
         -backend-config="resource_group_name=aoaidev-rg-launchpad" \
@@ -108,4 +107,159 @@ jobs:
         terraform apply -auto-approve \
         -var="storage_account_name=aoaidevstgtfstatewny" \
         -var="resource_group_name=aoaidev-rg-launchpad"
-        
+
+
+    - name: create network spoke devops
+      run: |  
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/applications/networking_spoke_devops
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-spoke-devops.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+
+    - name: create network hub internet egress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_egress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-internet-egress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+
+    - name: create network hub internet ingress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_internet_ingress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-internet-ingress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"  
+
+    - name: create network hub internet egress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_egress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-intranet-egress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+ 
+
+    - name: create network hub internet ingress
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_hub_intranet_ingress
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-hub-intranet-ingress.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"   
+      
+    - name: create network spoke management
+      run: | 
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/gcc_starter_kit/landingzone/configuration/1-landingzones/common_services/networking_spoke_management
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstatewny" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=network-spoke-management.tfstate"
+        echo performing terraform apply
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstatewny" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+   
+
+# solution accelerators        
