@@ -61,12 +61,12 @@ jobs:
         # az login --identity
         # login with service-principal
         echo "login with service-principal"
-        az login --service-principal -u "${{ parameters.ARM_CLIENT_ID}}" -p "${{ parameters.ARM_CLIENT_SECRET }}" --tenant "${{ parameters.ARM_TENANT_ID}}" 
-        az account set --subscription "${{ parameters.ARM_SUBSCRIPTION_ID}}"
-        export ARM_SUBSCRIPTION_ID="${{ parameters.ARM_SUBSCRIPTION_ID}}"
-        export ARM_TENANT_ID="${{ parameters.ARM_TENANT_ID}}"
-        export ARM_CLIENT_ID="${{ parameters.ARM_CLIENT_ID}}"
-        export ARM_CLIENT_SECRET="${{ parameters.ARM_CLIENT_SECRET }}"
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID }}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID }}" 
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID }}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID }}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID }}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID }}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
         echo get current account information
         ACCOUNT_INFO=$(az account show 2> /dev/null)
         SUB_ID=$(echo "$ACCOUNT_INFO" | jq ".id" -r)
