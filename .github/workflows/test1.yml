@@ -12,7 +12,15 @@ on:
         # Friendly description to be shown in the UI instead of 'name'
         description: 'Person to greet'
         # Default value if no value is explicitly provided
-        default: 'World'
+        # Input has to be provided for the workflow to run
+        required: true
+        # The data type of the input
+        type: string
+      ARM_CLIENT_ID:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'ARM CLIENT ID'
+        # Default value if no value is explicitly provided
+        default: '0854efab-9245-4e7e-997c-2c6efe5140fc'
         # Input has to be provided for the workflow to run
         required: true
         # The data type of the input
@@ -29,4 +37,4 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+      run: echo "Hello ${{ inputs.name }} - ${{ inputs.ARM_CLIENT_ID }}"
