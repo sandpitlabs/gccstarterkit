@@ -67,6 +67,31 @@ jobs:
         echo "Subscription Name: ${SUB_NAME}"
     
     # solution accelerators
+    - name: create storage account
+      run: |    
+        echo login with service-principal
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+        cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/storage_account
+        echo performing terraform init
+        terraform init  -reconfigure \
+        -backend-config="resource_group_name=aoaidev-rg-launchpad" \
+        -backend-config="storage_account_name=aoaidevstgtfstateosv" \
+        -backend-config="container_name=1-landingzones" \
+        -backend-config="key=solution_accelerators-project-storageaccount.tfstate"
+        echo performing terraform plan
+        terraform plan \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
+        -var="resource_group_name=aoaidev-rg-launchpad"
+        echo performing terraform apply
+        terraform apply -auto-approve \
+        -var="storage_account_name=aoaidevstgtfstateosv" \
+        -var="resource_group_name=aoaidev-rg-launchpad"    
+        
     - name: create keyvault
       run: |    
         echo login with service-principal
