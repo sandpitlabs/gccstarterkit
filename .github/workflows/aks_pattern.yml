@@ -113,8 +113,8 @@ jobs:
     #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
     - name: login azure with service-principal
       run: |
-      az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
-      az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
