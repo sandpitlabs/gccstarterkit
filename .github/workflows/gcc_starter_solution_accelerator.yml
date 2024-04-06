@@ -52,13 +52,6 @@ jobs:
   project_workflow:
     # The type of runner that the job will run on
     runs-on: self-hosted
-    env:
-      ARM_SUBSCRIPTION_ID: "${{ inputs.ARM_SUBSCRIPTION_ID }}"
-      ARM_TENANT_ID: "${{ inputs.ARM_TENANT_ID }}"
-      ARM_CLIENT_ID: "${{ inputs.ARM_CLIENT_ID }}"
-      ARM_CLIENT_SECRET: "${{ inputs.ARM_CLIENT_SECRET }}"
-      ARM_USE_AZUREAD: true
-      ARM_USE_OIDC: true
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
