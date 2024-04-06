@@ -119,12 +119,15 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: |
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
         cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/containter_instance        
         terraform init  -reconfigure \
         -backend-config="resource_group_name=${{ inputs.BACKEND_AZURE_RESOURCE_GROUP_NAME }}" \
         -backend-config="storage_account_name=${{ inputs.BACKEND_AZURE_STORAGE_ACCOUNT_NAME}}" \
         -backend-config="container_name=2-solution-accelerators" \
         -backend-config="key=solution_accelerators-project-containerinstance.tfstate"
+        
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
       run: terraform fmt -check
