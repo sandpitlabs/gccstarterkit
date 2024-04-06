@@ -76,37 +76,25 @@ jobs:
     #     echo "Subscription Name: ${SUB_NAME}"
     
     # solution accelerators
-
-  # devops_workflow:
-  #   needs: project_workflow # need plan workflow before devops workflow
-  #   name: Apply with Terraform
-  #   runs-on:
-  #     self-hosted
-  #   # concurrency: ${backend_azure_storage_account_container_name}
-  #   environment: sandpit # ${environment_name_apply}
-  #   # permissions:
-  #   #   id-token: write
-  #   #  contents: read
-
-  #   steps:
-  #     # - name: Download a Build Artifact
-  #     #   uses: actions/download-artifact@v3
-  #     #   with:
-  #     #     name: module
-  #     ## already installed
-  #     # - name: Install Terraform
-  #     #   uses: hashicorp/setup-terraform@v2
-      - name: login
+      - name: login to azure
         run: |
+          az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+          az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"   
+          export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
+          export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
+          export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
+          export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"       
+          # add your terraform init, plan and apply below
+          
+      - name: container instance
+        run: |  
+          # login information and export ARM information MUST be in all run
           az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
           az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
           export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
           export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
           export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
-          export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"           
-          
-      - name: container instance
-        run: |  
+          export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"              
           cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/containter_instance        
           terraform init  -reconfigure \
           -backend-config="resource_group_name=${{ inputs.BACKEND_AZURE_RESOURCE_GROUP_NAME }}" \
