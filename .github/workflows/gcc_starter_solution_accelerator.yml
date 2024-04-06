@@ -110,6 +110,8 @@ jobs:
 
       - name: Terraform Init
         run: |
+          az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+          az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
           cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/containter_instance        
           terraform init  -reconfigure \
           -backend-config="resource_group_name=${{ inputs.BACKEND_AZURE_RESOURCE_GROUP_NAME }}" \
@@ -119,12 +121,16 @@ jobs:
 
       - name: Terraform Plan
         run: |
+          az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+          az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
           terraform plan \
           -var="storage_account_name=${{ inputs.BACKEND_AZURE_STORAGE_ACCOUNT_NAME}}" \
           -var="resource_group_name=${{ inputs.BACKEND_AZURE_RESOURCE_GROUP_NAME }}"    
 
       - name: Terraform Apply
         run: |
+          az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+          az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
           terraform apply -auto-approve \
           -var="storage_account_name=${{ inputs.BACKEND_AZURE_STORAGE_ACCOUNT_NAME}}" \
           -var="resource_group_name=${{ inputs.BACKEND_AZURE_RESOURCE_GROUP_NAME }}"          
