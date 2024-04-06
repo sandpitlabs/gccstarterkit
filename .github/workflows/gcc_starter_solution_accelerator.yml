@@ -52,42 +52,6 @@ jobs:
   project_workflow:
     # The type of runner that the job will run on
     runs-on: self-hosted
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.ARM_CLIENT_ID }}"
-    - name: azure login
-      run: |
-        # az login --identity
-        # login with service-principal
-        echo "login with service-principal"
-        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID }}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID }}" 
-        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID }}"
-        export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID }}"
-        export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID }}"
-        export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID }}"
-        export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
-        echo get current account information
-        ACCOUNT_INFO=$(az account show 2> /dev/null)
-        SUB_ID=$(echo "$ACCOUNT_INFO" | jq ".id" -r)
-        SUB_NAME=$(echo "$ACCOUNT_INFO" | jq ".name" -r)
-        echo "Subscription Id: ${SUB_ID}"
-        echo "Subscription Name: ${SUB_NAME}"
-    
-    # solution accelerators
-
-  devops_workflow:
-    needs: project_workflow # need plan workflow before devops workflow
-    name: Apply with Terraform
-    runs-on:
-      self-hosted
-    # concurrency: ${backend_azure_storage_account_container_name}
-    environment: sandpit 
-    # permissions:
-    #   id-token: write
-    #  contents: read
     env:
       ARM_SUBSCRIPTION_ID: "${{ inputs.ARM_SUBSCRIPTION_ID }}"
       ARM_TENANT_ID: "${{ inputs.ARM_TENANT_ID }}"
@@ -95,19 +59,54 @@ jobs:
       ARM_CLIENT_SECRET: "${{ inputs.ARM_CLIENT_SECRET }}"
       ARM_USE_AZUREAD: true
       ARM_USE_OIDC: true
-
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # - name: Download a Build Artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: module
-      ## already installed
-      # - name: Install Terraform
-      #   uses: hashicorp/setup-terraform@v2
+    # Runs a single command using the runners shell
+    # - name: Send greeting
+    #   run: echo "Hello ${{ inputs.ARM_CLIENT_ID }}"
+    # - name: azure login
+    #   run: |
+    #     # az login --identity
+    #     # login with service-principal
+    #     echo "login with service-principal"
+    #     az login --service-principal -u "${{ inputs.ARM_CLIENT_ID }}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID }}" 
+    #     az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID }}"
+    #     export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID }}"
+    #     export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID }}"
+    #     export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID }}"
+    #     export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"
+    #     echo get current account information
+    #     ACCOUNT_INFO=$(az account show 2> /dev/null)
+    #     SUB_ID=$(echo "$ACCOUNT_INFO" | jq ".id" -r)
+    #     SUB_NAME=$(echo "$ACCOUNT_INFO" | jq ".name" -r)
+    #     echo "Subscription Id: ${SUB_ID}"
+    #     echo "Subscription Name: ${SUB_NAME}"
+    
+    # solution accelerators
+
+  # devops_workflow:
+  #   needs: project_workflow # need plan workflow before devops workflow
+  #   name: Apply with Terraform
+  #   runs-on:
+  #     self-hosted
+  #   # concurrency: ${backend_azure_storage_account_container_name}
+  #   environment: sandpit # ${environment_name_apply}
+  #   # permissions:
+  #   #   id-token: write
+  #   #  contents: read
+
+  #   steps:
+  #     # - name: Download a Build Artifact
+  #     #   uses: actions/download-artifact@v3
+  #     #   with:
+  #     #     name: module
+  #     ## already installed
+  #     # - name: Install Terraform
+  #     #   uses: hashicorp/setup-terraform@v2
       - name: login azure with service-principal
         run: |
-          az login --service-principal -u "${{ inputs.ARM_CLIENT_ID }}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID }}" 
-          az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID }}"
+        az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
+        az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
 
       - name: Terraform Init
         run: |
