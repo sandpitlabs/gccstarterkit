@@ -96,15 +96,17 @@ jobs:
   #     ## already installed
   #     # - name: Install Terraform
   #     #   uses: hashicorp/setup-terraform@v2
-
-      - name: container instance
+      - name: login
         run: |
           az login --service-principal -u "${{ inputs.ARM_CLIENT_ID}}" -p "${{ inputs.ARM_CLIENT_SECRET }}" --tenant "${{ inputs.ARM_TENANT_ID}}"   
           az account set --subscription "${{ inputs.ARM_SUBSCRIPTION_ID}}"
           export ARM_SUBSCRIPTION_ID="${{ inputs.ARM_SUBSCRIPTION_ID}}"
           export ARM_TENANT_ID="${{ inputs.ARM_TENANT_ID}}"
           export ARM_CLIENT_ID="${{ inputs.ARM_CLIENT_ID}}"
-          export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"          
+          export ARM_CLIENT_SECRET="${{ inputs.ARM_CLIENT_SECRET }}"           
+          
+      - name: container instance
+        run: |  
           cd ./gcc_starter_kit/landingzone/configuration/2-solution_accelerators/project/containter_instance        
           terraform init  -reconfigure \
           -backend-config="resource_group_name=${{ inputs.BACKEND_AZURE_RESOURCE_GROUP_NAME }}" \
